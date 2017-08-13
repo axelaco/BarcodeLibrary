@@ -15,8 +15,6 @@ import java.util.List;
 
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
 
-import static android.content.ContentValues.TAG;
-import static axelpetit.fr.barcodescanner.utils.CameraUtils.getCameraDisplayOrientation;
 
 /**
  * Created by Axel on 08/08/2017.
@@ -31,13 +29,14 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
     private Camera.PreviewCallback previewCallback;
     private boolean cameraClosed;
 
-    public CameraPreview(Context context, Camera mCamera) {
+    public CameraPreview(Context context, Camera camera, Camera.PreviewCallback previewCallback) {
         super(context);
         mHolder = getHolder();
         mHolder.addCallback(this);
-        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        this.mCamera = mCamera;
+        this.mCamera = camera;
         mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        this.previewCallback = previewCallback;
         requestLayout();
     }
 
@@ -85,6 +84,7 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
         }
         stopPreviewAndFreeCamera();
         mCamera = camera;
+        mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
     }
     public void stopPreviewAndFreeCamera() {
         if (mCamera != null) {
@@ -110,15 +110,21 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
             mPreviewSize = CameraUtils.chooseOptimalSize(mSupportedPreviewSizes, width, height);
         }
     }
+
     public void startPreview() {
         if (mCamera != null) {
             // Important: Call startPreview() to start updating the preview surface.
             // Preview must be started before you can take a picture.
             mCamera.startPreview();
+            mCamera.setOneShotPreviewCallback(previewCallback);
             cameraClosed = false;
         }
     }
     public boolean cameraClose() {
         return cameraClosed;
+    }
+
+    public void stopCameraPreview() {
+        mCamera.stopPreview();
     }
 }

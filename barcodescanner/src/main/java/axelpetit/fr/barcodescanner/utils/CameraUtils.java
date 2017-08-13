@@ -21,6 +21,8 @@ import static android.content.ContentValues.TAG;
  */
 
 public class CameraUtils {
+    public static final int STATE_CAMERA_OPENED = 1;
+    public static final int STATE_TASK_COMPLETE = 2;
     public static int getCameraDisplayOrientation(Context context, int cameraId, Camera camera) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();

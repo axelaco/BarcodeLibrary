@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (mScannerView != null) {
-            mScannerView.startPreview();
+            mScannerView.startCamera();
         }
     }
 
