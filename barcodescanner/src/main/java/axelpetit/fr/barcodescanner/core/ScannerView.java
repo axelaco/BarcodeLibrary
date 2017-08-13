@@ -132,7 +132,7 @@ public class ScannerView extends FrameLayout {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
             if (cameraProcessingHandlerThread == null) {
-                cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), getPreviewCallback(), barcodeDetector, new ResultHandler() {
+                cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), ScannerView.this, barcodeDetector, new ResultHandler() {
                     @Override
                     public void handleResult(Barcode barcode) {
                         Toast.makeText(getContext(), barcode.displayValue, Toast.LENGTH_SHORT).show();
