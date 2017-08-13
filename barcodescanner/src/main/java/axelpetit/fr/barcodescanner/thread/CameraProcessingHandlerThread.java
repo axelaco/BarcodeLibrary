@@ -28,9 +28,9 @@ public class CameraProcessingHandlerThread extends HandlerThread {
     private Context context;
     private boolean barcodeFinded = false;
     private ResultHandler mHandlerResult;
-    public CameraProcessingHandlerThread(Context context, ScannerView scannerView, BarcodeDetector barcodeDetector, ResultHandler mHandlerResult) {
+    public CameraProcessingHandlerThread(Context context, Camera.PreviewCallback previewCallback, BarcodeDetector barcodeDetector, ResultHandler mHandlerResult) {
         super("CameraProcessingHandlerThread");
-        this.previewCallback = scannerView.getPreviewCallback();
+        this.previewCallback = previewCallback;
         this.detector = barcodeDetector;
         this.context = context;
         this.mHandlerResult = mHandlerResult;
