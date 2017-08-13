@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
@@ -106,6 +107,10 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
         }
     }
     public void stopCamera() {
+        if (cameraProcessingHandlerThread != null) {
+            cameraProcessingHandlerThread.quit();
+            cameraProcessingHandlerThread = null;
+        }
         if (mPreview != null) {
             mPreview.stopPreviewAndFreeCamera();
             mPreview = null;
@@ -113,10 +118,6 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
         if (cameraHandlerThread != null) {
             cameraHandlerThread.quit();
             cameraHandlerThread = null;
-        }
-        if (cameraProcessingHandlerThread != null) {
-            cameraProcessingHandlerThread.quit();
-            cameraProcessingHandlerThread = null;
         }
     }
 
@@ -132,7 +133,13 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (cameraProcessingHandlerThread == null) {
-            cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), this, barcodeDetector);
+            cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), this, barcodeDetector, new ResultHandler() {
+                @Override
+                public void handleResult(Barcode barcode) {
+                    Toast.makeText(getContext(), barcode.displayValue, Toast.LENGTH_SHORT).show();
+                    mPreview.stopCameraPreview();
+                }
+            });
         }
         synchronized (cameraHandlerThread) {
             cameraProcessingHandlerThread.startProcessing(data, camera);
