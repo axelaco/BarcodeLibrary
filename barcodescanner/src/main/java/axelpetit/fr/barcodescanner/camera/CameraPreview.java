@@ -1,14 +1,10 @@
 package axelpetit.fr.barcodescanner.camera;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +33,6 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
         mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         this.previewCallback = previewCallback;
-        requestLayout();
     }
 
     public CameraPreview(Context context, AttributeSet attrs) {
@@ -59,7 +54,7 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
     public void surfaceChanged(SurfaceHolder surfaceHolder, int format, int w, int h) {
         if (mCamera != null) {
            // stopPreviewAndFreeCamera();
-            mCamera.stopPreview();
+            stopCameraPreview();
             mPreviewSize = CameraUtils.chooseOptimalSize(mSupportedPreviewSizes, w,  h);
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setPreviewSize(mPreviewSize.width, mPreviewSize.height);
@@ -85,6 +80,14 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
         stopPreviewAndFreeCamera();
         mCamera = camera;
         mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+    }
+
+    public void stopCameraPreview() {
+        if (mCamera != null) {
+            getHolder().removeCallback(this);
+            mCamera.setOneShotPreviewCallback(null);
+            mCamera.stopPreview();
+        }
     }
     public void stopPreviewAndFreeCamera() {
         if (mCamera != null) {
@@ -115,6 +118,7 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
         if (mCamera != null) {
             // Important: Call startPreview() to start updating the preview surface.
             // Preview must be started before you can take a picture.
+            mHolder.addCallback(this);
             mCamera.startPreview();
             mCamera.setOneShotPreviewCallback(previewCallback);
             cameraClosed = false;
@@ -122,9 +126,5 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
     }
     public boolean cameraClose() {
         return cameraClosed;
-    }
-
-    public void stopCameraPreview() {
-        mCamera.stopPreview();
     }
 }

@@ -1,6 +1,5 @@
 package axelpetit.fr.barcodescanner.core;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -11,12 +10,16 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+
 import axelpetit.fr.barcodescanner.camera.CameraPreview;
 import axelpetit.fr.barcodescanner.camera.CameraWrapper;
+import axelpetit.fr.barcodescanner.thread.CameraHandlerThread;
+import axelpetit.fr.barcodescanner.thread.CameraProcessingHandlerThread;
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
 import axelpetit.fr.barcodescanner.utils.ViewFinder;
 
@@ -30,7 +33,9 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
     private ViewFinder viewFinder;
     private Camera camera1;
     private CameraWrapper cameraWrapper;
+    private  BarcodeDetector barcodeDetector;
     private CameraHandlerThread cameraHandlerThread;
+    private CameraProcessingHandlerThread cameraProcessingHandlerThread;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
@@ -43,6 +48,7 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
                              * Moves the Bitmap from the task
                              * to the View
                              */
+                    removeAllViews();
                     addView(preview);
                     addView(viewFinder);
                     break;
@@ -60,6 +66,9 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
         super(context);
         cameraWrapper = new CameraWrapper(context);
         viewFinder = new ViewFinder(context);
+        BarcodeDetector.Builder builder = new BarcodeDetector.Builder(context);
+        builder.setBarcodeFormats(Barcode.ALL_FORMATS);
+        barcodeDetector = builder.build();
     }
 
     public ScannerView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -105,11 +114,15 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
             cameraHandlerThread.quit();
             cameraHandlerThread = null;
         }
+        if (cameraProcessingHandlerThread != null) {
+            cameraProcessingHandlerThread.quit();
+            cameraProcessingHandlerThread = null;
+        }
     }
 
     public void stopPreview() {
         if (mPreview != null) {
-            mPreview.stopCameraPreview();
+            stopCamera();
         }
     }
     public final void setupLayout() {
@@ -117,9 +130,13 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
             mPreview.startPreview();
     }
     @Override
-    public void onPreviewFrame(byte[] bytes, Camera camera) {
-        System.out.println("Image Processing In ScannerView");
-      //  camera.setOneShotPreviewCallback(this);
+    public void onPreviewFrame(byte[] data, Camera camera) {
+        if (cameraProcessingHandlerThread == null) {
+            cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), this, barcodeDetector);
+        }
+        synchronized (cameraHandlerThread) {
+            cameraProcessingHandlerThread.startProcessing(data, camera);
+        }
     }
 
     public void setCameraApi1(Camera cameraApi1) {

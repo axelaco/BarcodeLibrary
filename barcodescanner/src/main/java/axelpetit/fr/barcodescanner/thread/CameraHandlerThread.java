@@ -1,10 +1,12 @@
-package axelpetit.fr.barcodescanner.core;
+package axelpetit.fr.barcodescanner.thread;
 
 import android.content.Context;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import axelpetit.fr.barcodescanner.camera.CameraWrapper;
+import axelpetit.fr.barcodescanner.core.ScannerView;
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
 
 /**

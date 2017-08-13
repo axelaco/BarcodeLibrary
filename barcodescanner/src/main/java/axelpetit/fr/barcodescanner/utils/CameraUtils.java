@@ -119,5 +119,8 @@ public class CameraUtils {
         }
 
     }
+    public static int getScreenOrientation(Context context) {
+        return context.getResources().getConfiguration().orientation;
+    }
 
 }
