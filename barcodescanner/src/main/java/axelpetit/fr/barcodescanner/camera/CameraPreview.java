@@ -9,6 +9,7 @@ import android.view.SurfaceView;
 import java.io.IOException;
 import java.util.List;
 
+import axelpetit.fr.barcodescanner.core.ScannerView;
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
 
 
@@ -25,14 +26,14 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
     private Camera.PreviewCallback previewCallback;
     private boolean cameraClosed;
 
-    public CameraPreview(Context context, Camera camera, Camera.PreviewCallback previewCallback) {
+    public CameraPreview(Context context, Camera camera, ScannerView scannerView) {
         super(context);
         mHolder = getHolder();
         mHolder.addCallback(this);
         this.mCamera = camera;
         mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
         mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        this.previewCallback = previewCallback;
+        this.previewCallback = scannerView.getPreviewCallback();
     }
 
     public CameraPreview(Context context, AttributeSet attrs) {
@@ -71,15 +72,6 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
             // Call stopPreview() to stop updating the preview surface.
             mCamera.stopPreview();
         }
-    }
-
-    public void setCamera(Camera camera) {
-        if (mCamera == camera) {
-            return;
-        }
-        stopPreviewAndFreeCamera();
-        mCamera = camera;
-        mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
     }
 
     public void stopCameraPreview() {
@@ -123,8 +115,5 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
             mCamera.setOneShotPreviewCallback(previewCallback);
             cameraClosed = false;
         }
-    }
-    public boolean cameraClose() {
-        return cameraClosed;
     }
 }

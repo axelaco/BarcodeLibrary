@@ -28,12 +28,12 @@ import axelpetit.fr.barcodescanner.utils.ViewFinder;
  * Created by Axel on 08/08/2017.
  */
 
-public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
+public class ScannerView extends FrameLayout {
+    private  CameraWrapper cameraWrapper;
     private CameraPreview mPreview;
     private Rect framingRectInPreview;
     private ViewFinder viewFinder;
     private Camera camera1;
-    private CameraWrapper cameraWrapper;
     private  BarcodeDetector barcodeDetector;
     private CameraHandlerThread cameraHandlerThread;
     private CameraProcessingHandlerThread cameraProcessingHandlerThread;
@@ -61,8 +61,6 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
             }
         }
     };
-    private boolean inPreview;
-
     public ScannerView(@NonNull Context context) {
         super(context);
         cameraWrapper = new CameraWrapper(context);
@@ -130,22 +128,25 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
         System.out.println("Toto");
             mPreview.startPreview();
     }
-    @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        if (cameraProcessingHandlerThread == null) {
-            cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), this, barcodeDetector, new ResultHandler() {
-                @Override
-                public void handleResult(Barcode barcode) {
-                    Toast.makeText(getContext(), barcode.displayValue, Toast.LENGTH_SHORT).show();
+    private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
+        @Override
+        public void onPreviewFrame(byte[] data, Camera camera) {
+            if (cameraProcessingHandlerThread == null) {
+                cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), ScannerView.this, barcodeDetector, new ResultHandler() {
+                    @Override
+                    public void handleResult(Barcode barcode) {
+                        Toast.makeText(getContext(), barcode.displayValue, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+            synchronized (cameraProcessingHandlerThread) {
+                cameraProcessingHandlerThread.startProcessing(data, camera);
+                if (cameraProcessingHandlerThread.isBarcodeFinded()) {
                     mPreview.stopCameraPreview();
                 }
-            });
+            }
         }
-        synchronized (cameraHandlerThread) {
-            cameraProcessingHandlerThread.startProcessing(data, camera);
-        }
-    }
-
+    };
     public void setCameraApi1(Camera cameraApi1) {
         this.camera1 = cameraApi1;
         mPreview = new CameraPreview(getContext(), cameraApi1, this);
@@ -158,5 +159,9 @@ public class ScannerView extends FrameLayout implements Camera.PreviewCallback {
                 completeMessage.sendToTarget();
                 break;
         }
+    }
+
+    public Camera.PreviewCallback getPreviewCallback() {
+        return mPreviewCallback;
     }
 }

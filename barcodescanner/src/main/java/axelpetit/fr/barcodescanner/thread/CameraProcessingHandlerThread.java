@@ -15,6 +15,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import java.nio.ByteBuffer;
 
 import axelpetit.fr.barcodescanner.core.ResultHandler;
+import axelpetit.fr.barcodescanner.core.ScannerView;
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
 
 /**
@@ -27,9 +28,9 @@ public class CameraProcessingHandlerThread extends HandlerThread {
     private Context context;
     private boolean barcodeFinded = false;
     private ResultHandler mHandlerResult;
-    public CameraProcessingHandlerThread(Context context, Camera.PreviewCallback previewCallback, BarcodeDetector barcodeDetector, ResultHandler mHandlerResult) {
+    public CameraProcessingHandlerThread(Context context, ScannerView scannerView, BarcodeDetector barcodeDetector, ResultHandler mHandlerResult) {
         super("CameraProcessingHandlerThread");
-        this.previewCallback = previewCallback;
+        this.previewCallback = scannerView.getPreviewCallback();
         this.detector = barcodeDetector;
         this.context = context;
         this.mHandlerResult = mHandlerResult;
@@ -64,11 +65,15 @@ public class CameraProcessingHandlerThread extends HandlerThread {
                     final SparseArray<Barcode> barcodes = detector.detect(frame);
                     if (barcodes.size() > 0) {
                         mHandlerResult.handleResult(barcodes.valueAt(0));
-                        barcodeFinded = true;
                         camera.setOneShotPreviewCallback(null);
+                        camera.stopPreview();
                     }
                 }
             }
         });
+    }
+
+    public boolean isBarcodeFinded() {
+        return barcodeFinded;
     }
 }
