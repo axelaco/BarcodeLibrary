@@ -3,6 +3,7 @@ package axelpetit.fr.barcodescanner.utils;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Build;
 import android.util.Log;
@@ -125,14 +126,25 @@ public class CameraUtils {
     }
 
     public static byte[] rotateData(int width, int height, byte[] data) {
-            byte[] rotatedData = new byte[data.length];
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++)
-                    rotatedData[x * height + height - y - 1] = data[x + y * width];
+        byte[] yuv = new byte[width * height];
+        int i = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = height - 1; y >= 0; y--) {
+                yuv[i] = data[y * width + x];
+                i++;
             }
-            int tmp = width;
-            width = height;
-            height = tmp;
-            return rotatedData;
+        }
+        return yuv;
+    }
+
+    public static byte[] decodeGreyscale(byte[] nv21, int width, int height) {
+        int pixelCount = width * height;
+        byte[] out = new byte[pixelCount];
+        for (int i = 0; i < pixelCount; ++i) {
+            int luminance = nv21[i] & 0xFF;
+            out[i] = (byte) Color.argb(0xFF, luminance, luminance, luminance);
+            //out[i] = (0xff000000 | luminance <<16 | luminance <<8 | luminance);//No need to create Color object for each.
+        }
+        return out;
     }
 }
