@@ -17,6 +17,8 @@ import android.widget.Toast;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import java.util.List;
+
 import axelpetit.fr.barcodescanner.camera.CameraPreview;
 import axelpetit.fr.barcodescanner.camera.CameraWrapper;
 import axelpetit.fr.barcodescanner.thread.CameraHandlerThread;
@@ -36,6 +38,7 @@ public class ScannerView extends FrameLayout {
     private Camera camera1;
     private ResultHandler mResultHandler;
     private BarcodeDetector barcodeDetector;
+    private int barcodeFormats;
     private CameraHandlerThread cameraHandlerThread;
     private CameraProcessingHandlerThread cameraProcessingHandlerThread;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -66,9 +69,6 @@ public class ScannerView extends FrameLayout {
         super(context);
         cameraWrapper = new CameraWrapper(context);
         viewFinder = new ViewFinder(context);
-        BarcodeDetector.Builder builder = new BarcodeDetector.Builder(context);
-        builder.setBarcodeFormats(Barcode.ALL_FORMATS);
-        barcodeDetector = builder.build();
     }
 
     public ScannerView(@NonNull Context context, @Nullable AttributeSet attrs) {
@@ -96,6 +96,9 @@ public class ScannerView extends FrameLayout {
         return framingRectInPreview;
     }
     public void startCamera() {
+        BarcodeDetector.Builder builder = new BarcodeDetector.Builder(getContext());
+        builder.setBarcodeFormats(barcodeFormats);
+        barcodeDetector = builder.build();
         if (cameraHandlerThread == null) {
             cameraHandlerThread = new CameraHandlerThread(this, getContext());
         }
@@ -122,10 +125,6 @@ public class ScannerView extends FrameLayout {
         if (mPreview != null) {
             stopCamera();
         }
-    }
-    public final void setupLayout() {
-        System.out.println("Toto");
-            mPreview.startPreview();
     }
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
@@ -159,11 +158,14 @@ public class ScannerView extends FrameLayout {
         return mPreviewCallback;
     }
 
-    public ResultHandler getResultHandler() {
-        return mResultHandler;
-    }
-
     public void setResultHandler(ResultHandler mResultHandler) {
         this.mResultHandler = mResultHandler;
+    }
+    public void setBarcodeFormats(List<Integer> barocodeFormats) {
+        int res = barocodeFormats.get(0);
+        for (int i = 1; i < barocodeFormats.size(); ++i){
+            res |= barocodeFormats.get(i);
+        }
+        barcodeFormats = res;
     }
 }
