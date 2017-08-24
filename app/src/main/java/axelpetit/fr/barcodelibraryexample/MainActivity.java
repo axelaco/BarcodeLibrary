@@ -2,10 +2,14 @@ package axelpetit.fr.barcodelibraryexample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.google.android.gms.vision.barcode.Barcode;
+
+import axelpetit.fr.barcodescanner.core.ResultHandler;
 import axelpetit.fr.barcodescanner.core.ScannerView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ResultHandler {
     private ScannerView mScannerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         if (mScannerView != null) {
             mScannerView.startCamera();
+            mScannerView.setResultHandler(this);
         }
     }
 
@@ -28,5 +33,10 @@ public class MainActivity extends AppCompatActivity {
         if (mScannerView != null) {
             mScannerView.stopPreview();
         }
+    }
+
+    @Override
+    public void handleResult(Barcode barcode) {
+        Toast.makeText(this, barcode.displayValue, Toast.LENGTH_SHORT).show();
     }
 }

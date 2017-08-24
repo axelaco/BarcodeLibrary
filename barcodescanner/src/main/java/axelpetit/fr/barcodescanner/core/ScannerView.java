@@ -34,7 +34,8 @@ public class ScannerView extends FrameLayout {
     private Rect framingRectInPreview;
     private ViewFinder viewFinder;
     private Camera camera1;
-    private  BarcodeDetector barcodeDetector;
+    private ResultHandler mResultHandler;
+    private BarcodeDetector barcodeDetector;
     private CameraHandlerThread cameraHandlerThread;
     private CameraProcessingHandlerThread cameraProcessingHandlerThread;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -130,12 +131,7 @@ public class ScannerView extends FrameLayout {
         @Override
         public void onPreviewFrame(byte[] data, Camera camera) {
             if (cameraProcessingHandlerThread == null) {
-                cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), ScannerView.this, barcodeDetector, new ResultHandler() {
-                    @Override
-                    public void handleResult(Barcode barcode) {
-                        Toast.makeText(getContext(), barcode.displayValue, Toast.LENGTH_SHORT).show();
-                    }
-                });
+                cameraProcessingHandlerThread = new CameraProcessingHandlerThread(getContext(), ScannerView.this, barcodeDetector, mResultHandler);
             }
             synchronized (cameraProcessingHandlerThread) {
                 cameraProcessingHandlerThread.startProcessing(data, camera);
@@ -161,5 +157,13 @@ public class ScannerView extends FrameLayout {
 
     public Camera.PreviewCallback getPreviewCallback() {
         return mPreviewCallback;
+    }
+
+    public ResultHandler getResultHandler() {
+        return mResultHandler;
+    }
+
+    public void setResultHandler(ResultHandler mResultHandler) {
+        this.mResultHandler = mResultHandler;
     }
 }
