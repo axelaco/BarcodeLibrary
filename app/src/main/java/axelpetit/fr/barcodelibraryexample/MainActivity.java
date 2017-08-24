@@ -25,10 +25,12 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
     protected void onResume() {
         super.onResume();
         if (mScannerView != null) {
-            List<Integer> barcodeFormats = new ArrayList<>();
+            /*List<Integer> barcodeFormats = new ArrayList<>();
             barcodeFormats.add(Barcode.QR_CODE);
             barcodeFormats.add(Barcode.EAN_13);
+
             mScannerView.setBarcodeFormats(barcodeFormats);
+            */
             mScannerView.startCamera();
             mScannerView.setResultHandler(this);
         }

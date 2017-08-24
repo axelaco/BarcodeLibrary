@@ -38,7 +38,7 @@ public class ScannerView extends FrameLayout {
     private Camera camera1;
     private ResultHandler mResultHandler;
     private BarcodeDetector barcodeDetector;
-    private int barcodeFormats;
+    private int barcodeFormats = Barcode.ALL_FORMATS;
     private CameraHandlerThread cameraHandlerThread;
     private CameraProcessingHandlerThread cameraProcessingHandlerThread;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
