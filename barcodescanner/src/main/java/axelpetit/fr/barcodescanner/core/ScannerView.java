@@ -81,9 +81,7 @@ public class ScannerView extends FrameLayout {
                 return null;
             }
             Rect rect = new Rect(framingRect);
-            WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-            Point screenResolution = new Point();
-            windowManager.getDefaultDisplay().getSize(screenResolution);
+            Point screenResolution = viewFinder.getViewSize();
             if (cameraResolution == null || screenResolution == null) {
                 // Called early, before init even finished
                 return null;

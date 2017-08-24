@@ -76,10 +76,8 @@ public class CameraProcessingHandlerThread extends HandlerThread {
                         width = height;
                         height  = tmp;
                     }
-             /*       PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
-                    byte[] test = source.getMatrix();
-               */
-                    byte[] greyPixel = CameraUtils.decodeGreyscale(data, width, height);
+                    PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
+                    byte[] greyPixel = CameraUtils.decodeGreyscale(source.getMatrix(), source.getWidth(), source.getHeight());
                  /*   ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     Bitmap editedBitmap = Bitmap.createBitmap(source.getWidth(), source.getHeight(),
                             android.graphics.Bitmap.Config.ARGB_8888);
@@ -94,10 +92,9 @@ public class CameraProcessingHandlerThread extends HandlerThread {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    */
-
+                   */
                     Frame frame = new Frame.Builder()
-                            .setImageData(ByteBuffer.wrap(greyPixel), width, height, ImageFormat.NV21)
+                            .setImageData(ByteBuffer.wrap(greyPixel), source.getWidth(), source.getHeight(), ImageFormat.NV21)
                             .build();
                     final SparseArray<Barcode> barcodes = detector.detect(frame);
                     if (barcodes.size() > 0) {
@@ -122,8 +119,8 @@ public class CameraProcessingHandlerThread extends HandlerThread {
         PlanarYUVLuminanceSource source = null;
 
         try {
-            source = new PlanarYUVLuminanceSource(data, width, height, rect.top, rect.left,
-                    rect.height() , rect.width(), false);
+            source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
+                    rect.width() , rect.height(), false);
         } catch(Exception e) {
             e.printStackTrace();
         }

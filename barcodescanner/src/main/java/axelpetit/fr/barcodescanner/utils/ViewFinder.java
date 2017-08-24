@@ -22,6 +22,7 @@ public class ViewFinder extends View {
     private Rect mFramingRect;
     private Paint mLaserPaint;
     private Paint mFinderMaskPaint;
+    private Point viewSize;
     private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
     private int scannerAlpha;
     private static final int POINT_SIZE = 10;
@@ -43,6 +44,7 @@ public class ViewFinder extends View {
         super(context, attrs);
     }
     private void init() {
+        viewSize = new Point();
         //set up laser paint
         mLaserPaint = new Paint();
         mLaserPaint.setColor(mDefaultLaserColor);
@@ -56,6 +58,9 @@ public class ViewFinder extends View {
     public void onDraw(Canvas canvas) {
         drawViewFinderMask(canvas);
         drawLaser(canvas);
+        viewSize.x = getWidth();
+        viewSize.y = getHeight();
+
     }
     public void drawViewFinderMask(Canvas canvas) {
         int width = canvas.getWidth();
@@ -107,29 +112,6 @@ public class ViewFinder extends View {
         }
         return mFramingRect;
     }
-    public synchronized Rect getFramingRectInPreview(Point cameraResolution) {
-        if (framingRectInPreview == null) {
-            Rect framingRect = getFramingRect();
-            if (framingRect == null) {
-                return null;
-            }
-            Rect rect = new Rect(framingRect);
-            WindowManager windowManager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-            Point screenResolution = new Point();
-            windowManager.getDefaultDisplay().getSize(screenResolution);
-            if (cameraResolution == null || screenResolution == null) {
-                // Called early, before init even finished
-                return null;
-            }
-            rect.left = rect.left * cameraResolution.x / screenResolution.x;
-            rect.right = rect.right * cameraResolution.x / screenResolution.x;
-            rect.top = rect.top * cameraResolution.y / screenResolution.y;
-            rect.bottom = rect.bottom * cameraResolution.y / screenResolution.y;
-            framingRectInPreview = rect;
-        }
-        return framingRectInPreview;
-    }
-
     private static int findDesiredDimensionInRange(int resolution, int hardMin, int hardMax) {
         int dim = 5 * resolution / 8; // Target 5/8 of each dimension
         if (dim < hardMin) {
@@ -139,5 +121,9 @@ public class ViewFinder extends View {
             return hardMax;
         }
         return dim;
+    }
+
+    public Point getViewSize() {
+        return viewSize;
     }
 }
