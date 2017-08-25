@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 
-    package="axelpetit.fr.barcodescanner">
+    package="fr.axelpetit.barcodescanner">
 
     <uses-permission android:name="android.permission.CAMERA" />
 

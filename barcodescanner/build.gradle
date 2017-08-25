@@ -1,5 +1,24 @@
 apply plugin: 'com.android.library'
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'barcodescanner'
 
+    publishedGroupId = 'axelpetit.fr.barcodescanner'
+    libraryName = 'axelpetit'
+    artifact = 'barcodescanner'
+    siteUrl = 'https://github.com/axelaco/BarcodeLibrary'
+    gitUrl = 'https://github.com/axelaco/BarcodeLibrary.git'
+
+    libraryVersion = '1.0.0'
+
+    developerId = 'axelpetit'
+    developerName = 'Axel Petit'
+    developerEmail = 'axel.petit@epita.fr'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
 android {
     compileSdkVersion 26
     buildToolsVersion "26.0.1"
