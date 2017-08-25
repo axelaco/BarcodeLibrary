@@ -22,7 +22,7 @@ import axelpetit.fr.barcodescanner.camera.CameraWrapper;
 import axelpetit.fr.barcodescanner.thread.CameraHandlerThread;
 import axelpetit.fr.barcodescanner.thread.CameraProcessingHandlerThread;
 import axelpetit.fr.barcodescanner.utils.CameraUtils;
-import axelpetit.fr.barcodescanner.utils.ViewFinder;
+import axelpetit.fr.barcodescanner.view.ViewFinder;
 
 /**
  * Created by Axel on 08/08/2017.
@@ -148,7 +148,9 @@ public class ScannerView extends FrameLayout {
                 break;
         }
     }
-
+    public void resumeCameraPreview() {
+        mPreview.startPreview();
+    }
     public Camera.PreviewCallback getPreviewCallback() {
         return mPreviewCallback;
     }

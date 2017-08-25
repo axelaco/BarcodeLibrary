@@ -47,5 +47,6 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
     @Override
     public void handleResult(Barcode barcode) {
         Toast.makeText(this, barcode.displayValue, Toast.LENGTH_SHORT).show();
+        mScannerView.resumeCameraPreview(); // TODO Add Method to resumeCameraPreview
     }
 }

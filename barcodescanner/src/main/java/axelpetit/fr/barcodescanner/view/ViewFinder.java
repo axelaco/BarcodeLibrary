@@ -1,4 +1,4 @@
-package axelpetit.fr.barcodescanner.utils;
+package axelpetit.fr.barcodescanner.view;
 
 import android.content.Context;
 import android.content.res.Configuration;
