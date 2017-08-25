@@ -3,6 +3,11 @@ Introduction
 
 Android library projects
 
+Pre-requisites
+--------------
+- Android SDK 16+
+- Google Play services
+
 Installation
 ------------
 
