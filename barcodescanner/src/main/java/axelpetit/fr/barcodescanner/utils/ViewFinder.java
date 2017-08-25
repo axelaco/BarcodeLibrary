@@ -10,7 +10,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 
 import axelpetit.fr.barcodescanner.R;
 
@@ -65,7 +64,6 @@ public class ViewFinder extends View {
     public void drawViewFinderMask(Canvas canvas) {
         int width = canvas.getWidth();
         int height = canvas.getHeight();
-        Log.d("DrawViewFinderMask", "width: " + width + "-- height: " + height);
         Rect framingRect = getFramingRect();
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(mDefaultMaskColor);
@@ -73,7 +71,6 @@ public class ViewFinder extends View {
         canvas.drawRect(0, framingRect.top, framingRect.left, framingRect.bottom + 1, paint);
         canvas.drawRect(framingRect.right + 1, framingRect.top, width, framingRect.bottom + 1, paint);
         canvas.drawRect(0, framingRect.bottom + 1, width, height, paint);
-        Log.d("FramingRect", "left: " + framingRect.left + "-- top: " + framingRect.top + "(" + framingRect.width() + ", " + framingRect.height());
     }
 
     public void drawLaser(Canvas canvas) {

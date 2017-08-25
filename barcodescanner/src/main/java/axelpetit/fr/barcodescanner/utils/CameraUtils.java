@@ -2,7 +2,6 @@ package axelpetit.fr.barcodescanner.utils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Build;

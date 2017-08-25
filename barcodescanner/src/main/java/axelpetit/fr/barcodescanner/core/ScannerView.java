@@ -10,9 +10,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
@@ -111,13 +109,13 @@ public class ScannerView extends FrameLayout {
             cameraProcessingHandlerThread.quit();
             cameraProcessingHandlerThread = null;
         }
-        if (mPreview != null) {
-            mPreview.stopPreviewAndFreeCamera();
-            mPreview = null;
-        }
         if (cameraHandlerThread != null) {
             cameraHandlerThread.quit();
             cameraHandlerThread = null;
+        }
+        if (mPreview != null) {
+            mPreview.stopPreviewAndFreeCamera();
+            mPreview = null;
         }
     }
 
@@ -134,9 +132,6 @@ public class ScannerView extends FrameLayout {
             }
             synchronized (cameraProcessingHandlerThread) {
                 cameraProcessingHandlerThread.startProcessing(data, camera);
-                if (cameraProcessingHandlerThread.isBarcodeFinded()) {
-                    mPreview.stopCameraPreview();
-                }
             }
         }
     };
