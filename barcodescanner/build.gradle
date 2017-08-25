@@ -3,15 +3,16 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'barcodescanner'
 
-    publishedGroupId = 'axelpetit.fr.barcodescanner'
-    libraryName = 'axelpetit'
+    publishedGroupId = 'fr.axelpetit.barcodelibrary'
+    libraryName = 'BarcodeLibrary'
     artifact = 'barcodescanner'
-    siteUrl = 'https://github.com/axelaco/BarcodeLibrary'
-    gitUrl = 'https://github.com/axelaco/BarcodeLibrary.git'
+    siteUrl = 'https://github.com/axelaco/BarcodeScannerLibrary'
+    gitUrl = 'https://github.com/axelaco/BarcodeScannerLibrary.git'
 
     libraryVersion = '1.0.0'
+    libraryDescription = 'A wrapper for Facebook Native Like Button (LikeView) on Android'
 
-    developerId = 'axelpetit'
+    developerId = 'axelaco'
     developerName = 'Axel Petit'
     developerEmail = 'axel.petit@epita.fr'
 
@@ -49,3 +50,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-vision:11.2.0'
     testCompile 'junit:junit:4.12'
 }
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
