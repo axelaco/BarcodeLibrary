@@ -11,10 +11,22 @@ Pre-requisites
 Installation
 ------------
 
-Add the following dependendy to your build.gradle file.
+Add the following dependendy to your module build.gradle file.
 
 `compile 'fr.axelpetit.barcodescanner:1.0.0'`
 
+Add the following dependendy to your project build.gradle file.
+```
+repositories {
+        jcenter()
+        maven {
+            url 'https://dl.bintray.com/axelaco/maven/'
+        }
+        maven {
+            url 'https://maven.google.com'
+        }
+    }
+```
 Simple Usage
 ------------
 
