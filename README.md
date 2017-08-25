@@ -5,8 +5,8 @@ Android library projects
 
 Pre-requisites
 --------------
-- Android SDK 16+
-- Google Play services
++ Android SDK 16+
++ Google Play services
 
 Installation
 ------------
@@ -27,8 +27,46 @@ repositories {
         }
     }
 ```
+
 Simple Usage
 ------------
+
+A basic Activity would look like this:
+```java
+public class MainActivity extends AppCompatActivity implements ResultHandler {
+    private ScannerView mScannerView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mScannerView = new ScannerView(getApplicationContext());
+        setContentView(mScannerView);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mScannerView != null) {
+            mScannerView.startCamera();
+            mScannerView.setResultHandler(this);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mScannerView != null) {
+            mScannerView.stopCamera();
+        }
+    }
+    @Override
+    public void handleResult(Barcode barcode) {
+        Log.d("Result", barcode.displayValue);
+        Log.d("BarcodeFormat", barcode.format);
+    }
+}
+```
+Please take look at [barcode-reference](https://developers.google.com/android/reference/com/google/android/gms/vision/barcode/Barcode)
+for more information
 
 Credits
 -------
