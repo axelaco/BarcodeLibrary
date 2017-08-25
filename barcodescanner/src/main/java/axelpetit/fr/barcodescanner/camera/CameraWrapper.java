@@ -1,8 +1,20 @@
 package axelpetit.fr.barcodescanner.camera;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.SparseIntArray;
+
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static axelpetit.fr.barcodescanner.utils.CameraUtils.getCameraDisplayOrientation;
 
@@ -13,8 +25,20 @@ import static axelpetit.fr.barcodescanner.utils.CameraUtils.getCameraDisplayOrie
 public class CameraWrapper {
     private Camera camera1;
     private Context context;
+    private String mCameraId;
+    private CameraDevice.StateCallback mStateCallback;
+    private Semaphore mCameraOpenCloseLock = new Semaphore(1);
+    private Handler mBackgroundHandler;
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     public CameraWrapper(Context context) {
         this.context = context;
+    }
+
+    public CameraWrapper(Context context, String mCameraId, CameraDevice.StateCallback mStateCallback, Handler mBackgroundHandler) {
+        this.context = context;
+        this.mCameraId = mCameraId;
+        this.mStateCallback = mStateCallback;
+        this.mBackgroundHandler = mBackgroundHandler;
     }
 
     public Camera getCamera(int cameraId) {
@@ -45,6 +69,5 @@ public class CameraWrapper {
             // Camera is not available (in use or does not exist)
         }
         return c; // returns null if camera is unavailable
-
     }
 }

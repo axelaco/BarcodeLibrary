@@ -2,15 +2,27 @@ package axelpetit.fr.barcodescanner.utils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Point;
+import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ImageReader;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -22,8 +34,23 @@ import static android.content.ContentValues.TAG;
  */
 
 public class CameraUtils {
+    /**
+     * Max preview width that is guaranteed by Camera2 API
+     */
+    public static final int MAX_PREVIEW_WIDTH = 1920;
+    public static final int STATE_PREVIEW = 1;
+    public static final int STATE_WAITING_LOCK = 2;
+    public static final int STATE_WAITING_PRECAPTURE = 3;
+    public static final int STATE_WAITING_NON_PRECAPTURE = 4;
+    public static final int STATE_PICTURE_TAKEN = 5;
+    /**
+     * Max preview height that is guaranteed by Camera2 API
+     */
+    public static final int MAX_PREVIEW_HEIGHT = 1080;
     public static final int STATE_CAMERA_OPENED = 1;
     public static final int STATE_TASK_COMPLETE = 2;
+    private int mSensorOrientation;
+
     public static int getCameraDisplayOrientation(Context context, int cameraId, Camera camera) {
         android.hardware.Camera.CameraInfo info =
                 new android.hardware.Camera.CameraInfo();
@@ -120,6 +147,29 @@ public class CameraUtils {
         }
 
     }
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public static boolean allowCamera2Support(Context context, String cameraId) {
+        CameraManager manager = (CameraManager)context.getSystemService(Context.CAMERA_SERVICE);
+        try {
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            int support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+            if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY )
+                Log.d(TAG, "Camera " + cameraId + " has LEGACY Camera2 support");
+            else if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED )
+                Log.d(TAG, "Camera " + cameraId + " has LIMITED Camera2 support");
+            else if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL )
+                Log.d(TAG, "Camera " + cameraId + " has FULL Camera2 support");
+            else
+                Log.d(TAG, "Camera " + cameraId + " has unknown Camera2 support?!");
+            return support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED || support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL;
+        }
+        catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
     public static int getScreenOrientation(Context context) {
         return context.getResources().getConfiguration().orientation;
     }
@@ -146,4 +196,5 @@ public class CameraUtils {
         }
         return out;
     }
+
 }
