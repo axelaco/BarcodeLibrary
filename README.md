@@ -12,6 +12,7 @@ Installation
 ------------
 
 Add the following dependendy to your build.gradle file.
+
 `compile 'fr.axelpetit.barcodescanner:1.0.0'`
 
 Simple Usage
