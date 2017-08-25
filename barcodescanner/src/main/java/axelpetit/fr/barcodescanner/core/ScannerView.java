@@ -59,7 +59,7 @@ public class ScannerView extends FrameLayout {
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
-            if (mPreview2 != null)
+            if (mPreview2 != null && !useApi1)
                 mPreview2.configureTransform(width, height);
         }
 

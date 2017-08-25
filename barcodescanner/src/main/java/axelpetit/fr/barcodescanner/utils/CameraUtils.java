@@ -153,14 +153,6 @@ public class CameraUtils {
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             int support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-            if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY )
-                Log.d(TAG, "Camera " + cameraId + " has LEGACY Camera2 support");
-            else if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED )
-                Log.d(TAG, "Camera " + cameraId + " has LIMITED Camera2 support");
-            else if( support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL )
-                Log.d(TAG, "Camera " + cameraId + " has FULL Camera2 support");
-            else
-                Log.d(TAG, "Camera " + cameraId + " has unknown Camera2 support?!");
             return support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED || support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL;
         }
         catch (CameraAccessException e) {
