@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
     @Override
     protected void onResume() {
         super.onResume();
+        // TODO Camera doesn't restart after onPause method with CameraApi1 for new devices
         if (mScannerView != null) {
             /*List<Integer> barcodeFormats = new ArrayList<>();
             barcodeFormats.add(Barcode.QR_CODE);

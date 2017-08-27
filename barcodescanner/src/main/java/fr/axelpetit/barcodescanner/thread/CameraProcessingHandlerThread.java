@@ -60,7 +60,7 @@ public class CameraProcessingHandlerThread extends HandlerThread {
                         width = height;
                         height = tmp;
                     }
-                    PlanarYUVLuminanceSource source = buildLuminanceSource(data, width, height);
+                    PlanarYUVLuminanceSource source = CameraUtils.buildLuminanceSource(data, scannerView, width, height);
                     byte[] greyPixel = CameraUtils.decodeGreyscale(source.getMatrix(), source.getWidth(), source.getHeight());
                     Frame frame = new Frame.Builder()
                             .setImageData(ByteBuffer.wrap(greyPixel), source.getWidth(), source.getHeight(), ImageFormat.NV21)
@@ -78,21 +78,5 @@ public class CameraProcessingHandlerThread extends HandlerThread {
                 }
             }
         });
-    }
-    public PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, int width, int height) {
-        Rect rect = scannerView.getFramingRectInPreview(new Point(width, height));
-        if (rect == null) {
-            return null;
-        }
-        // Go ahead and assume it's YUV rather than die.
-        PlanarYUVLuminanceSource source = null;
-
-        try {
-            source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
-                    rect.width(), rect.height(), false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return source;
     }
 }

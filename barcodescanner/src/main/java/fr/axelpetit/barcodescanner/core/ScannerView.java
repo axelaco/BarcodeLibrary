@@ -22,6 +22,7 @@ import java.util.List;
 
 import fr.axelpetit.barcodescanner.camera.CameraPreview;
 import fr.axelpetit.barcodescanner.camera.CameraPreview2;
+import fr.axelpetit.barcodescanner.thread.Camera2ProcessingHandlerThread;
 import fr.axelpetit.barcodescanner.thread.CameraHandlerThread;
 import fr.axelpetit.barcodescanner.thread.CameraProcessingHandlerThread;
 import fr.axelpetit.barcodescanner.utils.CameraUtils;
@@ -44,6 +45,7 @@ public class ScannerView extends FrameLayout {
     private int barcodeFormats = Barcode.ALL_FORMATS;
     private CameraHandlerThread cameraHandlerThread;
     private CameraProcessingHandlerThread cameraProcessingHandlerThread;
+    private Camera2ProcessingHandlerThread processingHandlerThread;
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener
             = new TextureView.SurfaceTextureListener() {
 
@@ -103,6 +105,8 @@ public class ScannerView extends FrameLayout {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mTextureView = new AutoFitTextureView(context);
             mPreview2 = new CameraPreview2(context, mTextureView);
+            addView(mTextureView);
+            addView(viewFinder);
         }
     }
 
@@ -208,7 +212,11 @@ public class ScannerView extends FrameLayout {
 
     private void startCameraApi2() throws CameraPreview2.CameraApiNotSupport {
         if (mPreview2 != null ) {
+            if (processingHandlerThread == null) {
+                processingHandlerThread = new Camera2ProcessingHandlerThread(barcodeDetector, getContext(), this);
+            }
             mPreview2.startBackgroundThread();
+            mPreview2.setProcessingHandlerThread(processingHandlerThread);
             if (mTextureView.isAvailable()) {
                 mPreview2.openCamera(mTextureView.getWidth(), mTextureView.getHeight());
             } else {

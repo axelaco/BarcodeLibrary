@@ -1,13 +1,17 @@
 package fr.axelpetit.barcodescanner.utils;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.media.Image;
 import android.os.Build;
 import android.util.Log;
 import android.util.Size;
@@ -18,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import fr.axelpetit.barcodescanner.core.ScannerView;
 
 import static android.content.ContentValues.TAG;
 
@@ -145,7 +151,7 @@ public class CameraUtils {
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
             int support = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
-            return support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED || support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL;
+            return support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED || support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL || support == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3;
         }
         catch (CameraAccessException e) {
             e.printStackTrace();
@@ -180,5 +186,38 @@ public class CameraUtils {
         }
         return out;
     }
+    @SuppressLint("NewApi")
+    public static byte[] convertYUV_TO_NV21(Image image) {
+        Image.Plane Y = image.getPlanes()[0];
+        Image.Plane U = image.getPlanes()[1];
+        Image.Plane V = image.getPlanes()[2];
 
+        int Yb = Y.getBuffer().remaining();
+        int Ub = U.getBuffer().remaining();
+        int Vb = V.getBuffer().remaining();
+
+        byte[] data = new byte[Yb + Ub + Vb];
+
+        Y.getBuffer().get(data, 0, Yb);
+        U.getBuffer().get(data, Yb, Ub);
+        V.getBuffer().get(data, Yb + Ub, Vb);
+        return data;
+    }
+
+    public  static PlanarYUVLuminanceSource buildLuminanceSource(byte[] data, ScannerView scannerView, int width, int height) {
+        Rect rect = scannerView.getFramingRectInPreview(new Point(width, height));
+        if (rect == null) {
+            return null;
+        }
+        // Go ahead and assume it's YUV rather than die.
+        PlanarYUVLuminanceSource source = null;
+
+        try {
+            source = new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
+                    rect.width(), rect.height(), false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return source;
+    }
 }

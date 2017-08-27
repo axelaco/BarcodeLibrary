@@ -19,6 +19,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -26,16 +27,26 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Size;
+import android.util.SparseArray;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import fr.axelpetit.barcodescanner.core.ScannerView;
+import fr.axelpetit.barcodescanner.thread.Camera2ProcessingHandlerThread;
 import fr.axelpetit.barcodescanner.utils.CameraUtils;
 import fr.axelpetit.barcodescanner.utils.CompareSizesByArea;
+import fr.axelpetit.barcodescanner.utils.PlanarYUVLuminanceSource;
 import fr.axelpetit.barcodescanner.view.AutoFitTextureView;
 
 import static fr.axelpetit.barcodescanner.utils.CameraUtils.MAX_PREVIEW_HEIGHT;
@@ -55,6 +66,7 @@ public class CameraPreview2 {
     private static final String TAG = "CameraPreview2";
     private Context context;
     private String mCameraId;
+    private Camera2ProcessingHandlerThread processingHandlerThread;
     @SuppressLint("NewApi")
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -80,7 +92,20 @@ public class CameraPreview2 {
     private Semaphore mCameraOpenCloseLock = new Semaphore(1);
     private ImageReader mImageReader;
     private int mSensorOrientation;
-    private ImageReader.OnImageAvailableListener mOnImageAvailableListener;
+    private ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+        @SuppressLint("NewApi")
+        @Override
+        public void onImageAvailable(ImageReader imageReader) {
+            Image img = imageReader.acquireNextImage();
+            if (img == null)
+                return;
+            processingHandlerThread.setNextFrame(CameraUtils.convertYUV_TO_NV21(img), img.getHeight(), img.getWidth());
+            img.close();
+            processingHandlerThread.startProcessing();
+
+
+        }
+    };
     private boolean mFlashSupported;
     private AutoFitTextureView mTextureView;
     private Size mPreviewSize;
@@ -203,13 +228,8 @@ public class CameraPreview2 {
                     throw new CameraApiNotSupport("Camera Api Not supported");
                 // For still image captures, we use the largest available size.
                 Size largest = Collections.max(
-                        Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
+                        Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
                         new CompareSizesByArea());
-                mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
-                        ImageFormat.JPEG, /*maxImages*/1);
-                mImageReader.setOnImageAvailableListener(
-                        mOnImageAvailableListener, mBackgroundHandler);
-
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
                 WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -259,19 +279,25 @@ public class CameraPreview2 {
                 // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
                 // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
                 // garbage capture data.
+
                 mPreviewSize = chooseOptimalSize2(map.getOutputSizes(SurfaceTexture.class),
                         rotatedPreviewWidth, rotatedPreviewHeight, maxPreviewWidth,
                         maxPreviewHeight, largest);
+                mImageReader = ImageReader.newInstance(maxPreviewWidth, maxPreviewHeight,
+                        ImageFormat.YUV_420_888, /*maxImages*/1);
+                mImageReader.setOnImageAvailableListener(
+                        mOnImageAvailableListener, mBackgroundHandler);
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 int orientation = context.getResources().getConfiguration().orientation;
-                if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+              /* In comment to use all surface of the app frameLayout
+               if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     mTextureView.setAspectRatio(
                             mPreviewSize.getWidth(), mPreviewSize.getHeight());
                 } else {
                     mTextureView.setAspectRatio(
                             mPreviewSize.getHeight(), mPreviewSize.getWidth());
                 }
-
+                */
                 // Check if the flash is supported.
                 Boolean available = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
                 mFlashSupported = available == null ? false : available;
@@ -327,7 +353,7 @@ public class CameraPreview2 {
             mPreviewRequestBuilder
                     = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             mPreviewRequestBuilder.addTarget(surface);
-
+            mPreviewRequestBuilder.addTarget(mImageReader.getSurface());
             // Here, we create a CameraCaptureSession for camera preview.
             mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
                     new CameraCaptureSession.StateCallback() {
@@ -404,6 +430,10 @@ public class CameraPreview2 {
         } finally {
             mCameraOpenCloseLock.release();
         }
+    }
+
+    public void setProcessingHandlerThread(Camera2ProcessingHandlerThread processingHandlerThread) {
+        this.processingHandlerThread = processingHandlerThread;
     }
 
     public class CameraApiNotSupport extends Throwable {
