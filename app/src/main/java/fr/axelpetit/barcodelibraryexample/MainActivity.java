@@ -5,8 +5,12 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 
 import fr.axelpetit.barcodescanner.core.ResultHandler;
@@ -15,11 +19,25 @@ import fr.axelpetit.barcodescanner.core.ScannerView;
 public class MainActivity extends AppCompatActivity implements ResultHandler {
     private ScannerView mScannerView;
     private AlertDialog dialog;
+    private FrameLayout frameLayout;
+    private boolean toggle = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
         mScannerView = new ScannerView(getApplicationContext());
-        setContentView(mScannerView);
+        frameLayout = findViewById(R.id.frame_cam);
+        Button btn  = findViewById(R.id.button2);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggle = !toggle;
+                if (mScannerView != null) {
+                    mScannerView.setFlash(toggle);
+                }
+            }
+        });
+        frameLayout.addView(mScannerView);
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Barcode Result");
         dialog = builder.create();
