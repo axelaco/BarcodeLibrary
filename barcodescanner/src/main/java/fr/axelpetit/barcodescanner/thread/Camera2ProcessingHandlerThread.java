@@ -72,7 +72,7 @@ public class Camera2ProcessingHandlerThread extends HandlerThread {
                 public void run() {
                     System.gc();
                     if (mPendingFrameData != null) {
-                        System.out.println("Process Frame " + mPendingFrame);
+                        // System.out.println("Process Frame " + mPendingFrame);
                         if (CameraUtils.getScreenOrientation(context) == Configuration.ORIENTATION_PORTRAIT) {
                             mPendingFrameData = CameraUtils.rotateData(width, height, mPendingFrameData);
                             int tmp = width;

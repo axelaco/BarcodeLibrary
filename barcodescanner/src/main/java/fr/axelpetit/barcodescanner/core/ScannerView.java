@@ -253,6 +253,7 @@ public class ScannerView extends FrameLayout {
             mPreview2.stopBackgroundThread();
             mPreview2.stopProcessingThread();
             mPreview2 = null;
+            processingHandlerThread = null;
         }
     }
 }

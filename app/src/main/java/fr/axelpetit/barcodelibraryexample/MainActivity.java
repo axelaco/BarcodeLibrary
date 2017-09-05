@@ -30,15 +30,8 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
         super.onResume();
         // TODO Camera doesn't restart after onPause method with CameraApi1 for new devices
         if (mScannerView != null) {
-            /*List<Integer> barcodeFormats = new ArrayList<>();
-            barcodeFormats.add(Barcode.QR_CODE);
-            barcodeFormats.add(Barcode.EAN_13);
-
-            mScannerView.setBarcodeFormats(barcodeFormats);
-            */
             mScannerView.setResultHandler(this);
             mScannerView.startCamera();
-
         }
     }
 
@@ -46,23 +39,15 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
     protected void onPause() {
         super.onPause();
         if (mScannerView != null) {
+            dialog.dismiss();
             mScannerView.stopPreview();
         }
     }
 
     @Override
     public void handleResult(Barcode barcode) {
-      /*  AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Hello")
-                .setMessage(barcode.displayValue)
-                .setPositiveButton("Yes", null)
-                .setNegativeButton("No", null)
-                .setNeutralButton("Maybe", null);
-        AlertDialog dialog = builder.create(); */
-       // dialog.show();
         showPopUp(barcode.displayValue);
-        System.out.println("Res: " + barcode.displayValue);
-     //   mScannerView.resumeCameraPreview(); // TODO Add Method to resumeCameraPreview
+      // mScannerView.resumeCameraPreview(); // TODO Add Method to resumeCameraPreview
     }
     private void showPopUp(final String text) {
         final Activity activity = this;

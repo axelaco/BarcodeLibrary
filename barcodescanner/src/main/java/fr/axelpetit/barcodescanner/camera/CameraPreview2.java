@@ -425,13 +425,7 @@ public class CameraPreview2 {
     public void stopProcessingThread() {
         if (processingHandlerThread != null) {
                 processingHandlerThread.quitSafely();
-            try {
-                processingHandlerThread.join();
-             //   processingHandlerThread.resetHandler();
                 processingHandlerThread = null;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -455,20 +449,6 @@ public class CameraPreview2 {
             throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
         } finally {
             mCameraOpenCloseLock.release();
-        }
-    }
-    @SuppressLint("NewApi")
-    public void lockFocus() {
-        try {
-            // This is how to tell the camera to lock focus.
-            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
-                    CameraMetadata.CONTROL_AF_TRIGGER_START);
-            // Tell #mCaptureCallback to wait for the lock.
-            mState = STATE_WAITING_LOCK;
-            mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
-                    mBackgroundHandler);
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
         }
     }
     public void setProcessingHandlerThread(Camera2ProcessingHandlerThread processingHandlerThread) {
