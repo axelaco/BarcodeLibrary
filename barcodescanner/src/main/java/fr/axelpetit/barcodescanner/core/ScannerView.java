@@ -159,6 +159,9 @@ public class ScannerView extends FrameLayout {
         if (mPreview != null) {
             stopCamera();
         }
+        if (mPreview2 != null) {
+            stopCamera();
+        }
     }
     private Camera.PreviewCallback mPreviewCallback = new Camera.PreviewCallback() {
         @Override
@@ -211,9 +214,15 @@ public class ScannerView extends FrameLayout {
     }
 
     private void startCameraApi2() throws CameraPreview2.CameraApiNotSupport {
+        if (mPreview2 == null) {
+            removeAllViews();
+            mPreview2 = new CameraPreview2(getContext(), mTextureView);
+            addView(mTextureView);
+            addView(viewFinder);
+        }
         if (mPreview2 != null ) {
             if (processingHandlerThread == null) {
-                processingHandlerThread = new Camera2ProcessingHandlerThread(barcodeDetector, getContext(), this);
+                processingHandlerThread = new Camera2ProcessingHandlerThread(barcodeDetector, getContext(), this, mResultHandler);
             }
             mPreview2.startBackgroundThread();
             mPreview2.setProcessingHandlerThread(processingHandlerThread);
@@ -240,8 +249,9 @@ public class ScannerView extends FrameLayout {
     }
     private void stopCameraApi2() {
         if (mPreview2 != null) {
-            mPreview2.stopBackgroundThread();
             mPreview2.closeCamera();
+            mPreview2.stopBackgroundThread();
+            mPreview2.stopProcessingThread();
             mPreview2 = null;
         }
     }

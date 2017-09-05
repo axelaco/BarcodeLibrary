@@ -1,5 +1,8 @@
 package fr.axelpetit.barcodelibraryexample;
 
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -11,11 +14,15 @@ import fr.axelpetit.barcodescanner.core.ScannerView;
 
 public class MainActivity extends AppCompatActivity implements ResultHandler {
     private ScannerView mScannerView;
+    private AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mScannerView = new ScannerView(getApplicationContext());
         setContentView(mScannerView);
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Barcode Result");
+        dialog = builder.create();
     }
 
     @Override
@@ -29,8 +36,9 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
 
             mScannerView.setBarcodeFormats(barcodeFormats);
             */
-            mScannerView.startCamera();
             mScannerView.setResultHandler(this);
+            mScannerView.startCamera();
+
         }
     }
 
@@ -44,7 +52,28 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
 
     @Override
     public void handleResult(Barcode barcode) {
-        Toast.makeText(this, barcode.displayValue, Toast.LENGTH_SHORT).show();
-        mScannerView.resumeCameraPreview(); // TODO Add Method to resumeCameraPreview
+      /*  AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Hello")
+                .setMessage(barcode.displayValue)
+                .setPositiveButton("Yes", null)
+                .setNegativeButton("No", null)
+                .setNeutralButton("Maybe", null);
+        AlertDialog dialog = builder.create(); */
+       // dialog.show();
+        showPopUp(barcode.displayValue);
+        System.out.println("Res: " + barcode.displayValue);
+     //   mScannerView.resumeCameraPreview(); // TODO Add Method to resumeCameraPreview
+    }
+    private void showPopUp(final String text) {
+        final Activity activity = this;
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.setMessage(text);
+                    dialog.show();
+                }
+            });
+        }
     }
 }

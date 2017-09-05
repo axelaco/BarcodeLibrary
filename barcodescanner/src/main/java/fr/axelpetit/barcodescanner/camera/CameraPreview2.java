@@ -15,6 +15,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -96,14 +97,20 @@ public class CameraPreview2 {
         @SuppressLint("NewApi")
         @Override
         public void onImageAvailable(ImageReader imageReader) {
-            Image img = imageReader.acquireNextImage();
-            if (img == null)
-                return;
-            processingHandlerThread.setNextFrame(CameraUtils.convertYUV_TO_NV21(img), img.getHeight(), img.getWidth());
-            img.close();
-            processingHandlerThread.startProcessing();
-
-
+            if (processingHandlerThread != null) {
+                Image img = imageReader.acquireNextImage();
+                if (img == null)
+                    return;
+                processingHandlerThread.setNextFrame(CameraUtils.convertYUV_TO_NV21(img), img.getHeight(), img.getWidth());
+                img.close();
+                try {
+                    if (processingHandlerThread.isAlive() && !processingHandlerThread.isInterrupted()) {
+                        processingHandlerThread.startProcessing();
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     };
     private boolean mFlashSupported;
@@ -400,15 +407,34 @@ public class CameraPreview2 {
     /**
      * Stops the background thread and its {@link Handler}.
      */
+    @SuppressLint("NewApi")
     public void stopBackgroundThread() {
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (mBackgroundThread != null) {
+            mBackgroundThread.quitSafely();
+            try {
+                mBackgroundThread.join();
+                mBackgroundThread = null;
+                mBackgroundHandler = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+    @SuppressLint("NewApi")
+    public void stopProcessingThread() {
+        if (processingHandlerThread != null) {
+                processingHandlerThread.quitSafely();
+            try {
+                processingHandlerThread.join();
+             //   processingHandlerThread.resetHandler();
+                processingHandlerThread = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     @SuppressLint("NewApi")
     public void closeCamera() {
         try {
@@ -431,7 +457,20 @@ public class CameraPreview2 {
             mCameraOpenCloseLock.release();
         }
     }
-
+    @SuppressLint("NewApi")
+    public void lockFocus() {
+        try {
+            // This is how to tell the camera to lock focus.
+            mPreviewRequestBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,
+                    CameraMetadata.CONTROL_AF_TRIGGER_START);
+            // Tell #mCaptureCallback to wait for the lock.
+            mState = STATE_WAITING_LOCK;
+            mCaptureSession.capture(mPreviewRequestBuilder.build(), mCaptureCallback,
+                    mBackgroundHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
     public void setProcessingHandlerThread(Camera2ProcessingHandlerThread processingHandlerThread) {
         this.processingHandlerThread = processingHandlerThread;
     }
