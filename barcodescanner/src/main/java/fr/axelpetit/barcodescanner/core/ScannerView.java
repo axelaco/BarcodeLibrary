@@ -260,7 +260,9 @@ public class ScannerView extends FrameLayout {
     }
 
     public void setFlash(boolean flash) {
-        this.flashMode = flash;
+        if (mPreview != null || useApi1) {
+            mPreview.setFlash(flash);
+        }
         if (mPreview2 != null) {
             mPreview2.setFlash(flash);
         }
