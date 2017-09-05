@@ -9,7 +9,7 @@ ext {
     siteUrl = 'https://github.com/axelaco/BarcodeScannerLibrary'
     gitUrl = 'https://github.com/axelaco/BarcodeScannerLibrary.git'
 
-    libraryVersion = '1.1.0'
+    libraryVersion = '1.1.1'
     libraryDescription = 'A wrapper for Facebook Native Like Button (LikeView) on Android'
 
     developerId = 'axelaco'
@@ -27,8 +27,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 3
-        versionName "1.1.0"
+        versionCode 4
+        versionName "1.1.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 

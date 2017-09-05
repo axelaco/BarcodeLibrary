@@ -3,8 +3,6 @@ package fr.axelpetit.barcodescanner.thread;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.ImageFormat;
-import android.graphics.Point;
-import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Handler;
 import android.os.HandlerThread;

@@ -1,10 +1,5 @@
 package fr.axelpetit.barcodescanner.utils;
 
-import android.graphics.Point;
-import android.graphics.Rect;
-
-import fr.axelpetit.barcodescanner.core.ScannerView;
-
 /**
  * Created by Axel on 13/08/2017.
  */

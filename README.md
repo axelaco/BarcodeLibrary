@@ -13,15 +13,12 @@ Installation
 
 Add the following dependendy to your module build.gradle file.
 
-`compile 'fr.axelpetit.barcodescanner:1.0.0'`
+`compile 'fr.axelpetit.barcodescanner:1.1.1'`
 
 Add the following dependendy to your project build.gradle file.
 ```
 repositories {
         jcenter()
-        maven {
-            url 'https://dl.bintray.com/axelaco/maven/'
-        }
         maven {
             url 'https://maven.google.com'
         }
@@ -46,8 +43,8 @@ public class MainActivity extends AppCompatActivity implements ResultHandler {
     protected void onResume() {
         super.onResume();
         if (mScannerView != null) {
-            mScannerView.startCamera();
             mScannerView.setResultHandler(this);
+            mScannerView.startCamera();
         }
     }
 
