@@ -99,6 +99,8 @@ public class ScannerView extends FrameLayout {
             }
         }
     };
+    private boolean flashMode = false;
+
     public ScannerView(@NonNull Context context) {
         super(context);
         viewFinder = new ViewFinder(context);
@@ -254,6 +256,13 @@ public class ScannerView extends FrameLayout {
             mPreview2.stopProcessingThread();
             mPreview2 = null;
             processingHandlerThread = null;
+        }
+    }
+
+    public void setFlash(boolean flash) {
+        this.flashMode = flash;
+        if (mPreview2 != null) {
+            mPreview2.setFlash(flash);
         }
     }
 }

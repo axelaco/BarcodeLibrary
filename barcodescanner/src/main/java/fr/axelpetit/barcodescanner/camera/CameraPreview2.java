@@ -2,6 +2,7 @@ package fr.axelpetit.barcodescanner.camera;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
@@ -14,12 +15,14 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.NonNull;
@@ -184,7 +187,6 @@ public class CameraPreview2 {
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
                 != PackageManager.PERMISSION_GRANTED) {
-        //    requestCameraPermission(); TODO Add RequestPermision for Camera
             return;
         }
         setUpCameraOutputs(width, height);
@@ -387,6 +389,28 @@ public class CameraPreview2 {
             e.printStackTrace();
         }
     }
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void setFlash(boolean flash) {
+        if (mFlashSupported) {
+            if (mPreviewRequestBuilder != null) {
+                if (flash) {
+                    mPreviewRequestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH);
+                }
+                else
+                    mPreviewRequestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_OFF);
+                mPreviewRequest = mPreviewRequestBuilder.build();
+                try {
+                    mCaptureSession.setRepeatingRequest(mPreviewRequest,
+                            mCaptureCallback, mBackgroundHandler);
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public void startBackgroundThread() {
         mBackgroundThread = new HandlerThread("CameraBackground");
         mBackgroundThread.start();
