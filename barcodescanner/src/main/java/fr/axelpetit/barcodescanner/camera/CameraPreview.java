@@ -119,10 +119,12 @@ public class CameraPreview extends SurfaceView  implements SurfaceHolder.Callbac
 
     public void setFlash(boolean flash) {
         if (mCamera != null) {
-            Camera.Parameters parameters = mCamera.getParameters();
-            String flashMode = flash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF;
-            parameters.setFlashMode(flashMode);
-            mCamera.setParameters(parameters);
+            if (CameraUtils.isFlashModeSupported(mCamera)) {
+                Camera.Parameters parameters = mCamera.getParameters();
+                String flashMode = flash ? Camera.Parameters.FLASH_MODE_TORCH : Camera.Parameters.FLASH_MODE_OFF;
+                parameters.setFlashMode(flashMode);
+                mCamera.setParameters(parameters);
+            }
         }
     }
 }
