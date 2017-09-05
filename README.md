@@ -13,7 +13,7 @@ Installation
 
 Add the following dependendy to your module build.gradle file.
 
-`compile 'fr.axelpetit.barcodescanner:1.1.1'`
+`compile 'fr.axelpetit.barcodescanner:1.1.2'`
 
 Add the following dependendy to your project build.gradle file.
 ```
